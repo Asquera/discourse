@@ -1,3 +1,4 @@
+# -*- ruby -*-
 source 'https://rubygems.org'
 
 gem 'active_model_serializers', git: 'git://github.com/rails-api/active_model_serializers.git'
@@ -14,7 +15,6 @@ gem 'airbrake', '3.1.2' # errbit is broken with 3.1.3 for now
 gem 'clockwork', require: false
 gem 'em-redis'
 gem 'eventmachine'
-gem 'fast_xs'
 gem 'fastimage'
 gem 'fog', require: false
 gem 'has_ip_address'
@@ -29,23 +29,19 @@ gem "omniauth-openid"
 gem "openid-redis-store"
 gem "omniauth-facebook"
 gem "omniauth-twitter"
-gem 'oj'
 gem 'pbkdf2'
-gem 'pg'
 gem 'rails'
 gem 'rake'
 gem 'redis'
 gem 'redis-rails'
 gem 'rest-client'
-gem 'rinku'
 gem 'sanitize'
 gem 'sass'
 gem 'seed-fu'
 gem 'sidekiq'
 gem 'sinatra', require: nil
 gem 'slim'  # required for sidekiq-web
-gem 'therubyracer', require: 'v8'
-gem 'thin'
+
 
 # Gem that enables support for plugins. It is required
 gem 'discourse_plugin', path: 'vendor/gems/discourse_plugin'
@@ -56,6 +52,20 @@ gem 'discourse_plugin', path: 'vendor/gems/discourse_plugin'
 # gem 'discourse_poll', path: 'vendor/gems/discourse_poll'
 gem 'discourse_emoji', path: 'vendor/gems/discourse_emoji'
 # gem 'discourse_task', path: 'vendor/gems/discourse_task'
+
+platforms :ruby do
+  gem 'pg'
+  gem 'oj'
+  gem 'rinku'
+  gem 'therubyracer', require: 'v8'
+  gem 'thin'
+end
+
+platforms :jruby do
+  gem "activerecord-jdbcpostgresql-adapter"
+  gem "puma"
+  gem "therubyrhino", require: 'rhino'
+end
 
 # Gems used only for assets and not required
 # in production environments by default.
@@ -92,8 +102,8 @@ end
 
 group :development do 
   gem 'better_errors'
-  gem 'binding_of_caller' # I tried adding this and got an occational crash
-  gem 'librarian', '>= 0.0.25', require: false
+  gem 'binding_of_caller', platforms: "ruby" # I tried adding this and got an occational crash
+  gem 'librarian', '>= 0.0.25', platforms: "ruby", require: false
   gem 'pry-rails'  
 end
 
