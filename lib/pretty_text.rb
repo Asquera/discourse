@@ -89,14 +89,14 @@ module PrettyText
     
     @ctx["helpers"] = Helpers.new 
 
-    @ctx.load(app_root + "app/assets/javascripts/external/Markdown.Converter.js")
-    @ctx.load(app_root + "app/assets/javascripts/external/twitter-text-1.5.0.js")    
-    @ctx.load(app_root + "lib/headless-ember.js")
-    @ctx.load(app_root + "app/assets/javascripts/external/rsvp.js")    
-    @ctx.load(Rails.configuration.ember.handlebars_location)
-    #@ctx.load(Rails.configuration.ember.ember_location)
+    @ctx.load(File.join(app_root, "app/assets/javascripts/external/Markdown.Converter.js"))
+    @ctx.load(File.join(app_root, "app/assets/javascripts/external/twitter-text-1.5.0.js"))
+    @ctx.load(File.join(app_root, "lib/headless-ember.js"))
+    @ctx.load(File.join(app_root, "app/assets/javascripts/external/rsvp.js"))
+    @ctx.load(Rails.configuration.ember.handlebars_location.to_s)
+    #@ctx.load(Rails.configuration.ember.ember_location.to_s)
 
-    @ctx.load(app_root + "app/assets/javascripts/external/sugar-1.3.5.js")
+    @ctx.load(File.join(app_root, "app/assets/javascripts/external/sugar-1.3.5.js"))
     @ctx.eval("var Discourse = {}; Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
     @ctx.eval("var window = {}; window.devicePixelRatio = 2;") # hack to make code think stuff is retina
 
@@ -106,7 +106,7 @@ module PrettyText
     # Load server side javascripts
     if DiscoursePluginRegistry.server_side_javascripts.present?
       DiscoursePluginRegistry.server_side_javascripts.each do |ssjs|
-        @ctx.load(ssjs)
+        @ctx.load(ssjs.to_s)
       end
     end
 
@@ -125,7 +125,7 @@ module PrettyText
     
     baked = nil
 
-    @mutex.synchronize do        
+    @mutex.synchronize do
       # we need to do this to work in a multi site environment, many sites, many settings
       js.eval("Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
       js.eval("Discourse.BaseUrl = 'http://#{RailsMultisite::ConnectionManagement.current_hostname}';")
