@@ -1,6 +1,11 @@
 require 'coffee_script'
-require 'v8'
 require 'nokogiri'
+
+if RUBY_PLATFORM =~ /java/
+  require "rhino"
+else
+  require "v8"
+end
 
 module PrettyText
 
@@ -73,10 +78,14 @@ module PrettyText
     Rails.root
   end
 
-  def self.v8
+  def self.js
     return @ctx unless @ctx.nil?
 
-    @ctx = V8::Context.new
+    if RUBY_PLATFORM =~ /java/
+      @ctx = Rhino::Context.new
+    else
+      @ctx = V8::Context.new
+    end
     
     @ctx["helpers"] = Helpers.new 
 
@@ -118,13 +127,13 @@ module PrettyText
 
     @mutex.synchronize do        
       # we need to do this to work in a multi site environment, many sites, many settings
-      v8.eval("Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
-      v8.eval("Discourse.BaseUrl = 'http://#{RailsMultisite::ConnectionManagement.current_hostname}';")
-      v8['opts'] = opts || {}
-      v8['raw'] = text
-      v8.eval('opts["mentionLookup"] = function(u){return helpers.is_username_valid(u);}')
-      v8.eval('opts["lookupAvatar"] = function(p){return Discourse.Utilities.avatarImg({username: p, size: "tiny", avatarTemplate: helpers.avatar_template(p)});}')
-      baked = v8.eval('Discourse.Utilities.markdownConverter(opts).makeHtml(raw)') 
+      js.eval("Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
+      js.eval("Discourse.BaseUrl = 'http://#{RailsMultisite::ConnectionManagement.current_hostname}';")
+      js['opts'] = opts || {}
+      js['raw'] = text
+      js.eval('opts["mentionLookup"] = function(u){return helpers.is_username_valid(u);}')
+      js.eval('opts["lookupAvatar"] = function(p){return Discourse.Utilities.avatarImg({username: p, size: "tiny", avatarTemplate: helpers.avatar_template(p)});}')
+      baked = js.eval('Discourse.Utilities.markdownConverter(opts).makeHtml(raw)') 
     end
 
     # we need some minimal server side stuff, apply CDN and TODO filter disallowed markup
@@ -136,12 +145,12 @@ module PrettyText
   def self.avatar_img(username, size)
     r = nil
     @mutex.synchronize do        
-      v8['username'] = username
-      v8['size'] = size
-      v8.eval("Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
-      v8.eval("Discourse.CDN = '#{Rails.configuration.action_controller.asset_host}';")
-      v8.eval("Discourse.BaseUrl = '#{RailsMultisite::ConnectionManagement.current_hostname}';")
-      r = v8.eval("Discourse.Utilities.avatarImg({ username: username, size: size });") 
+      js['username'] = username
+      js['size'] = size
+      js.eval("Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
+      js.eval("Discourse.CDN = '#{Rails.configuration.action_controller.asset_host}';")
+      js.eval("Discourse.BaseUrl = '#{RailsMultisite::ConnectionManagement.current_hostname}';")
+      r = js.eval("Discourse.Utilities.avatarImg({ username: username, size: size });") 
     end
     r
   end
