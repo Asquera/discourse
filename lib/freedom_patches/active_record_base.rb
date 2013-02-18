@@ -13,7 +13,11 @@ class ActiveRecord::Base
         result = result.dup
 
         def result.values
-          self
+          if empty?
+            self
+          else
+            [self.first.values.map(&:to_s)]
+          end
         end
 
         result
