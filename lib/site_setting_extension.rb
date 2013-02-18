@@ -142,7 +142,7 @@ module SiteSettingExtension
 
     setting = SiteSetting.where(:name => name).first
     type = get_data_type(defaults[name])
-    
+
     if type == Types::Bool && val != true && val != false
       val = (val == "t" || val == "true")
     end
@@ -155,7 +155,7 @@ module SiteSettingExtension
       setting.value = val
       setting.data_type = type 
       setting.save
-    else 
+    else
       SiteSetting.create!(:name => name, :value => val, :data_type => type)
     end
 
@@ -186,7 +186,7 @@ module SiteSettingExtension
     when Types::String
       value
     when Types::Bool
-      value == "t"
+      value == "t" || value == "1"
     when Types::Null
       nil
     end
