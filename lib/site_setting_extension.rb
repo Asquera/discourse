@@ -204,17 +204,17 @@ module SiteSettingExtension
 
     setter = ("#{name}=").sub("?","")
 
-    eval "define_singleton_method :#{name} do 
+    define_singleton_method name.to_sym do
       c = @@containers[RailsMultisite::ConnectionManagement.current_db]
       c = c[name] if c
       c
     end
-    
-    define_singleton_method :#{setter} do |val|
-      add_override!(:#{name}, val)
+
+    define_singleton_method setter.to_sym do |val|
+      add_override!(name.to_sym, val)
       refresh!
     end
-    "
+
   end
 
   def method_missing(method, *args, &block)
