@@ -4,7 +4,23 @@ class ActiveRecord::Base
   def self.exec_sql(*args)
     conn = ActiveRecord::Base.connection
     sql = ActiveRecord::Base.send(:sanitize_sql_array, args)
-    conn.execute(sql)
+    result = conn.execute(sql)
+
+    if result.respond_to?(:values) # MRI Postgres adapter
+      result
+    else # JDBC adapters don't return PG::Result, but as mostly only #values is called, we can emulate it.
+      if result.kind_of?(Array)
+        result = result.dup
+
+        def result.values
+          self
+        end
+
+        result
+      else
+        result
+      end
+    end
   end
 
   def self.exec_sql_row_count(*args)
