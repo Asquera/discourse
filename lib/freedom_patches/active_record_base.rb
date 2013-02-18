@@ -28,7 +28,27 @@ class ActiveRecord::Base
   end
 
   def self.exec_sql_row_count(*args)
-    exec_sql(*args).cmd_tuples  
+    if RUBY_PLATFORM =~ /java/
+      # There's no way to get the affected row count with the JDBC
+      # adapter elegantly. So fire raw SQL to get the row count;
+      # the NOTICE is cought by the JDBC adapter and we get a nice
+      # integer back.
+
+      conn = ActiveRecord::Base.connection
+      sql = <<-SQL
+DO $$
+DECLARE
+  row_count int;
+BEGIN
+  #{ActiveRecord::Base.send(:sanitize_sql_array, args)};
+  GET DIAGNOSTICS row_count = ROW_COUNT;
+  RAISE NOTICE  '%', row_count;
+END$$;
+    SQL
+      conn.execute(sql)
+    else
+      exec_sql(*args).cmd_tuples
+    end
   end
 
   def exec_sql(*args)
