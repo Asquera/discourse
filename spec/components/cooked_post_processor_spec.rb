@@ -24,10 +24,7 @@ describe CookedPostProcessor do
     end
 
     it 'inserts the onebox' do
-      @cpp.html.should == <<EXPECTED
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
-<html><body>GANGNAM STYLE</body></html>
-EXPECTED
+      @cpp.html.should =~ /<body>GANGNAM STYLE<\/body>/
     end
 
   end
@@ -73,7 +70,8 @@ EXPECTED
 
       it "adds the height and width to images that don't have them" do
         @post.reload
-        @post.cooked.should =~ /width=\"123\" height=\"456\"/
+        @post.cooked.should =~ /width=\"123\"/
+        @post.cooked.should =~ /height=\"456\"/
       end
 
     end
@@ -95,7 +93,7 @@ EXPECTED
     it 'convert img tags to links if they are sized down' do 
       cpp_for_post.expects(:get_size).returns([2000,2000]).twice
       cpp_for_post.post_process 
-      cpp_for_post.html.should =~ /a href/
+      cpp_for_post.html.should =~ /a[^<>]+href/
     end
 
     it 'does not convert img tags to links if they are small' do 
