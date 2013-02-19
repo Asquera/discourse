@@ -108,18 +108,7 @@ class TopicUser < ActiveRecord::Base
   end
 
   def self.track_visit!(topic,user)
-    now = DateTime.now
-    rows = exec_sql_row_count(
-      "update topic_users set last_visited_at=? where topic_id=? and user_id=?",
-      now, topic.id, user.id
-    )
-
-    if rows == 0
-      exec_sql('insert into topic_users(topic_id, user_id, last_visited_at, first_visited_at)
-               values(?,?,?,?)',
-               topic.id, user.id, now, now)
-    end
-
+    TopicUser.where(:user_id => user.id, :topic_id => topic.id).first_or_create(:last_visited_at => DateTime.now).save
   end
 
   # Update the last read and the last seen post count, but only if it doesn't exist.
