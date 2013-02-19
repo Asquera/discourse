@@ -11,31 +11,24 @@ describe Oneboxer::AndroidAppStoreOnebox do
   end
   
   it "generates the expected onebox for Android App Store" do
-    @o.onebox.should == expected_android_app_store_result
-  end
-  
-private
-  def expected_android_app_store_result
-    <<EXPECTED
-<div class='onebox-result'>
-    <div class='source'>
-      <div class='info'>
-        <a href='https://play.google.com/store/apps/details?id=com.moosoft.parrot' target="_blank">
-          <img class='favicon' src="/assets/favicons/google_play.png"> google.com
-        </a>
-      </div>
-    </div>
-  <div class='onebox-result-body'>
-    <img src="https://lh5.ggpht.com/wrYYVu74XNUu2WHk0aSZEqgdCDCNti9Fl0_dJnhgR6jY04ajQgVg5ABMatfcTDsB810=w124" class="thumbnail">
-    <h3><a href="https://play.google.com/store/apps/details?id=com.moosoft.parrot" target="_blank">Talking Parrot</a></h3>
-    
-    Listen to the parrot repeat what you say. A Fun application for all ages. Upgrade to Talking Parrot Pro to save sounds, set them as your ringtone and control recording. 
- Press the MENU button to access the settings where you can change the record time and repeat count. 
- This app uses anonymous usage stats to understand and improve performance. 
- Comments and feedback welcome. 
-  </div>
-  <div class='clearfix'></div>
-</div>
-EXPECTED
+    html = Nokogiri::HTML("<body>" + @o.onebox + "</body>")
+
+    html.at_xpath("html/body/div")["class"].should == "onebox-result"
+    html.at_xpath("html/body/div/div[1]")["class"].should == "source"
+    html.at_xpath("html/body/div/div[1]/div")["class"].should == "info"
+    html.at_xpath("html/body/div/div[1]/div/a")["href"].should == "https://play.google.com/store/apps/details?id=com.moosoft.parrot"
+    html.at_xpath("html/body/div/div[1]/div/a")["target"].should == "_blank"
+    html.at_xpath("html/body/div/div[1]/div/a/img")["class"].should == "favicon"
+    html.at_xpath("html/body/div/div[1]/div/a/img")["src"].should == "/assets/favicons/google_play.png"
+
+    html.at_xpath("html/body/div/div[2]")["class"].should == "onebox-result-body"
+    html.at_xpath("html/body/div/div[2]/img")["src"].should == "https://lh5.ggpht.com/wrYYVu74XNUu2WHk0aSZEqgdCDCNti9Fl0_dJnhgR6jY04ajQgVg5ABMatfcTDsB810=w124"
+    html.at_xpath("html/body/div/div[2]/img")["class"].should == "thumbnail"
+    html.at_xpath("html/body/div/div[2]/h3/a")["href"].should == "https://play.google.com/store/apps/details?id=com.moosoft.parrot"
+    html.at_xpath("html/body/div/div[2]/h3/a")["target"].should == "_blank"
+    html.at_xpath("html/body/div/div[2]/h3/a").text.should =~ /Talking Parrot/
+    html.at_xpath("html/body/div/div[2]").text.should =~ /Listen to the parrot.*A Fun application.*Upgrade to.*as your ringtone.*MENU button.*anonymous usage stats.*feedback welcome/m
+
+    html.at_xpath("html/body/div/div[3]")["class"].should == "clearfix"
   end
 end
