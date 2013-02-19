@@ -20,6 +20,9 @@ gem 'fog', require: false
 gem 'has_ip_address'
 gem 'hiredis'
 gem 'i18n-js'
+# note: for image_optim to correctly work you need
+# sudo apt-get install -y advancecomp gifsicle jpegoptim libjpeg-progs optipng pngcrush
+gem 'image_optim'
 gem 'jquery-rails'
 gem 'multi_json'
 gem 'mustache'
@@ -43,7 +46,7 @@ gem 'sinatra', require: nil
 gem 'slim'  # required for sidekiq-web
 
 
-# Gem that enables support for plugins. It is required
+# Gem that enables support for plugins. It is required.
 gem 'discourse_plugin', path: 'vendor/gems/discourse_plugin'
 
 # Discourse Plugins (optional)
@@ -89,7 +92,6 @@ group :test, :development do
   gem 'guard-jasmine'
   gem 'guard-rspec' 
   gem 'guard-spork'
-  gem 'image_optim'
   gem 'jasminerice'
   gem 'mocha', require: false
   gem 'rb-fsevent'

@@ -100,6 +100,10 @@ window.Discourse.PostView = Ember.View.extend
       $('nav', $parent).addClass('toggled')
       Discourse.Post.loadByPostNumber post.get('topic_id'), post.get('reply_to_post_number'), (result) =>
         @set('loadingParent', false)
+
+        # Give the post a reference back to the topic
+        result.topic = @get('post.topic')
+        
         @set('parentPost', result)
 
     false
@@ -208,6 +212,7 @@ window.Discourse.PostView = Ember.View.extend
 
     # Add syntax highlighting
     Discourse.SyntaxHighlighting.apply($post)
+    Discourse.Lightbox.apply($post)
 
     # If we're scrolling upwards, adjust the scroll position accordingly
     if scrollTo = @get('post.scrollTo')
