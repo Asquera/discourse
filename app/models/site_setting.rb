@@ -21,7 +21,7 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:must_approve_users, false)
   client_setting(:ga_tracking_code, "")
   client_setting(:new_topics_rollup, 1)
-  client_setting(:enable_long_polling, true)
+  client_setting(:enable_long_polling, RUBY_PLATFORM !~ /java/) # No proper Thin on JRuby
   client_setting(:polling_interval, 3000)
   client_setting(:anon_polling_interval, 30000)
   client_setting(:min_post_length, Rails.env.test? ? 5 : 20)
