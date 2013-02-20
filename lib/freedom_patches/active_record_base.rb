@@ -4,6 +4,7 @@ class ActiveRecord::Base
   def self.exec_sql(*args)
     conn = ActiveRecord::Base.connection
     sql = ActiveRecord::Base.send(:sanitize_sql_array, args)
+    Rails.logger.debug("exec_sql: #{sql}")
     result = conn.execute(sql)
 
     if result.respond_to?(:values) # MRI Postgres adapter
@@ -45,6 +46,7 @@ BEGIN
   RAISE NOTICE  '%', row_count;
 END$$;
     SQL
+      Rails.logger.debug("exec_sql: #{sql}")
       conn.execute(sql)
     else
       exec_sql(*args).cmd_tuples
