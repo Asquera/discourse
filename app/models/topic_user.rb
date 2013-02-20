@@ -91,9 +91,8 @@ class TopicUser < ActiveRecord::Base
 
       if rows == 0
         now = DateTime.now
-        auto_track_after = self.exec_sql("select auto_track_topics_after_msecs from users where id = ?", user_id).values[0][0]
+        auto_track_after = User.find(user_id).auto_track_topics_after_msecs
         auto_track_after ||= SiteSetting.auto_track_topics_after
-        auto_track_after = auto_track_after.to_i
 
         if auto_track_after >= 0 && auto_track_after <= (attrs[:total_msecs_viewed] || 0)
           attrs[:notification_level] ||= TopicUser::NotificationLevel::TRACKING
