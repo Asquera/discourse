@@ -166,7 +166,7 @@ describe Jobs::Importer do
             it "should make a backup of the users table" do
               Jobs::Importer.any_instance.stubs(:ordered_models_for_import).returns([User])
               Jobs::Importer.new.execute(@importer_args)
-              User.exec_sql_row_count("SELECT table_name FROM information_schema.tables WHERE table_schema = 'backup' AND table_name = 'users'").should == 1
+              User.exec_sql("SELECT COUNT(table_name) FROM information_schema.tables WHERE table_schema = 'backup' AND table_name = 'users'").values.first.first.to_i.should == 1
             end
 
             it "should have a users table that's empty" do
