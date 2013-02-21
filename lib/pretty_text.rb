@@ -1,4 +1,3 @@
-require 'coffee_script'
 require 'nokogiri'
 
 if RUBY_PLATFORM =~ /java/
@@ -100,8 +99,8 @@ module PrettyText
     @ctx.eval("var Discourse = {}; Discourse.SiteSettings = #{SiteSetting.client_settings_json};")
     @ctx.eval("var window = {}; window.devicePixelRatio = 2;") # hack to make code think stuff is retina
 
-    @ctx.eval(CoffeeScript.compile(File.read(app_root + "app/assets/javascripts/discourse/components/bbcode.js.coffee")))
-    @ctx.eval(CoffeeScript.compile(File.read(app_root + "app/assets/javascripts/discourse/components/utilities.coffee")))
+    @ctx.load(File.join(app_root, "app/assets/javascripts/discourse/components/bbcode.js"))
+    @ctx.load(File.join(app_root,"app/assets/javascripts/discourse/components/utilities.js"))
 
     # Load server side javascripts
     if DiscoursePluginRegistry.server_side_javascripts.present?
@@ -110,8 +109,8 @@ module PrettyText
       end
     end
 
-    @ctx['quoteTemplate'] = File.open(app_root + 'app/assets/javascripts/discourse/templates/quote.js.shbrs') {|f| f.read}
-    @ctx['quoteEmailTemplate'] = File.open(app_root + 'lib/assets/quote_email.js.shbrs') {|f| f.read}
+    @ctx['quoteTemplate'] = File.open(File.join(app_root, 'app/assets/javascripts/discourse/templates/quote.js.shbrs')){|f| f.read}
+    @ctx['quoteEmailTemplate'] = File.open(File.join(app_root, 'lib/assets/quote_email.js.shbrs')){|f| f.read}
     @ctx.eval("HANDLEBARS_TEMPLATES = { 
       'quote': Handlebars.compile(quoteTemplate),
       'quote_email': Handlebars.compile(quoteEmailTemplate),
