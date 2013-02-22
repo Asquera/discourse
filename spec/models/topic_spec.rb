@@ -136,8 +136,17 @@ describe Topic do
         SiteSetting.stubs(:title_fancy_entities).returns(true)
       end
 
+      # JRuby had some encoding problems
+      it "ensures the fancy title is encoded in UTF-8" do
+        topic.fancy_title.encoding.should == Encoding::UTF_8
+      end
+
       it "converts the title to have fancy entities" do
-        topic.fancy_title.should == "&ldquo;this topic&rdquo; &ndash; has &ldquo;fancy stuff&rdquo;"
+        if RUBY_PLATFORM =~ /java/
+          topic.fancy_title.should == "“this topic” – has “fancy stuff”"
+        else
+          topic.fancy_title.should == "&ldquo;this topic&rdquo; &ndash; has &ldquo;fancy stuff&rdquo;"
+        end
       end
     end
 
