@@ -9,7 +9,6 @@ gem 'message_bus', path: 'vendor/gems/message_bus'
 gem 'rails_multisite', path: 'vendor/gems/rails_multisite'
 gem 'simple_handlebars_rails', path: 'vendor/gems/simple_handlebars_rails'
 
-gem 'redcarpet', require: false
 gem 'activerecord-postgres-hstore'
 gem 'acts_as_paranoid'
 gem 'active_attr' # until we get ActiveModel::Model with Rails 4
@@ -61,6 +60,7 @@ gem 'discourse_emoji', path: 'vendor/gems/discourse_emoji'
 platforms :ruby do
   gem 'pg'
   gem 'oj'
+  gem 'redcarpet', require: false
   gem 'rinku'
   gem 'therubyracer', require: 'v8'
   gem 'thin'
@@ -68,6 +68,7 @@ end
 
 platforms :jruby do
   gem "activerecord-jdbcpostgresql-adapter"
+  gem "rubypants-unicode", require: false
   gem "puma"
   gem "therubyrhino", require: 'rhino'
 end

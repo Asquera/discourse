@@ -123,9 +123,13 @@ class Topic < ActiveRecord::Base
     return title unless SiteSetting.title_fancy_entities?
 
     # We don't always have to require this, if fancy is disabled
-    require 'redcarpet'
-
-    Redcarpet::Render::SmartyPants.render(title)
+    if RUBY_PLATFORM =~ /java/
+      require "rubypants-unicode"
+      RubyPants.new(title).to_html
+    else
+      require 'redcarpet'
+      Redcarpet::Render::SmartyPants.render(title)
+    end
   end
 
   def title_quality
