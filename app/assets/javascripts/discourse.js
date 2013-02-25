@@ -1,4 +1,7 @@
 /*global Modernizr:true*/
+/*global assetPath:true*/
+/*global FastClick:true*/
+
 (function() {
   var csrf_token;
 
@@ -46,8 +49,8 @@
       var bus, user;
       bus = Discourse.MessageBus;
 
-      // We don't want to receive any previous user notidications
-      bus.unsubscribe("/notification");
+      // We don't want to receive any previous user notifications
+      bus.unsubscribe("/notification/*");
       bus.callbackInterval = Discourse.SiteSettings.anon_polling_interval;
       bus.enableLongPolling = false;
       user = this.get('currentUser');
@@ -59,7 +62,7 @@
             return user.set('site_flagged_posts_count', data.total);
           });
         }
-        return bus.subscribe("/notification", (function(data) {
+        return bus.subscribe("/notification/" + user.id, (function(data) {
           user.set('unread_notifications', data.unread_notifications);
           return user.set('unread_private_messages', data.unread_private_messages);
         }), user.notification_channel_position);
@@ -98,7 +101,8 @@
       // If we're in the same topic, don't push the state
       topicRegexp = /\/t\/([^\/]+)\/(\d+)\/?(\d+)?/;
       newMatches = topicRegexp.exec(path);
-      if (newTopicId = newMatches ? newMatches[2] : void 0) {
+      newTopicId = newMatches ? newMatches[2] : null;
+      if (newTopicId) {
         oldMatches = topicRegexp.exec(window.location.pathname);
         if ((oldTopicId = oldMatches ? oldMatches[2] : void 0) && (oldTopicId === newTopicId)) {
           Discourse.replaceState(path);
@@ -144,6 +148,14 @@
         $html.addClass('discourse-touch');
         this.touch = true;
         this.hasTouch = true;
+
+        $LAB.script(assetPath('defer/fastclick'))
+            .wait(function(){
+                // work around jshint hating side-effects
+                //   its just the way the FastClick api is
+                var ignore = new FastClick(document.body);
+            });
+
       } else {
         $html.addClass('discourse-no-touch');
         this.touch = false;
@@ -255,8 +267,8 @@
                   return 0;
                 }
               }).each(function(item) {
-                var output;
-                if (output = f("" + item.k, item.v)) {
+                var output = f("" + item.k, item.v);
+                if (output) {
                   return console.log(output);
                 }
               });
@@ -288,7 +300,7 @@
           oldBuilder.call(this);
         }
         return builder.call(this);
-      }
+      };
     },
     start: function() {
       this.bindDOMEvents();

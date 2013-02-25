@@ -173,7 +173,7 @@ class User < ActiveRecord::Base
   # tricky, we need our bus to be subscribed from the right spot
   def sync_notification_channel_position
     @unread_notifications_by_type = nil
-    self.notification_channel_position = MessageBus.last_id('/notification')
+    self.notification_channel_position = MessageBus.last_id("/notification/#{id}")
   end
 
   def invited_by
@@ -226,7 +226,7 @@ class User < ActiveRecord::Base
   end
 
   def publish_notifications_state
-    MessageBus.publish("/notification",
+    MessageBus.publish("/notification/#{self.id}",
         {unread_notifications: self.unread_notifications,
          unread_private_messages: self.unread_private_messages},
         user_ids: [self.id] # only publish the notification to this user
@@ -288,6 +288,13 @@ class User < ActiveRecord::Base
         adding_visit_record(date)
         User.increment_counter(:days_visited, 1)
       end
+    end
+  end
+
+  def update_ip_address!(new_ip_address)
+    if (ip_address != new_ip_address) and new_ip_address.present?
+      ip_address = new_ip_address
+      update_column(:ip_address, new_ip_address)
     end
   end
 
@@ -435,6 +442,20 @@ class User < ActiveRecord::Base
     else
       duration.minutes.ago
     end 
+  end
+
+  MAX_TIME_READ_DIFF = 100
+  # attempt to add total read time to user based on previous time this was called
+  def update_time_read! 
+    last_seen_key = "user-last-seen:#{id}"
+    last_seen = $redis.get(last_seen_key)
+    if last_seen.present?
+      diff = (Time.now.to_f - last_seen.to_f).round
+      if diff > 0 && diff < MAX_TIME_READ_DIFF
+        User.update_all ["time_read = time_read + ?", diff], ["id = ? and time_read = ?", id, time_read]
+      end
+    end
+    $redis.set(last_seen_key, Time.now.to_f)
   end
 
   protected

@@ -16,7 +16,6 @@ class SiteSetting < ActiveRecord::Base
   client_setting(:popup_delay, 1500)
   client_setting(:top_menu, 'popular|new|unread|favorited|categories')
   client_setting(:post_menu, 'like|edit|flag|delete|share|bookmark|reply')
-  client_setting(:max_length_show_reply, 1500)
   client_setting(:track_external_right_clicks, false)
   client_setting(:must_approve_users, false)
   client_setting(:ga_tracking_code, "")
@@ -100,8 +99,6 @@ class SiteSetting < ActiveRecord::Base
   setting(:best_of_score_threshold, 15)
   setting(:best_of_posts_required, 50)
   setting(:best_of_likes_required, 1)
-  setting(:category_post_template,
-          "[Replace this first paragraph with a short description of your new category. Try to keep it below 200 characters.]\n\nUse this space below for a longer description, as well as to establish any rules or discussion!")
 
   # we need to think of a way to force users to enter certain settings, this is a minimal config thing
   setting(:notification_email, 'info@discourse.org')
